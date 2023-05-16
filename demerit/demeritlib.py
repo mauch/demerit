@@ -1,4 +1,5 @@
 import logging
+import os
 import textwrap
 
 from astropy.io import fits
@@ -7,6 +8,7 @@ from astropy import units as u
 from astropy import coordinates as c
 import numpy as np
 
+from demerit import static_dir
 
 log = logging.getLogger('demerit')
 
@@ -23,7 +25,7 @@ BAND_FREQ = {'UHF': [816. * u.MHz, 107./60. * u.deg],
 def common_options(parser):
     """Add arguments that are common to all of the scripts"""
 
-    parser.add_argument("--catalogue", type=str, default="AllSky.fits.gz",
+    parser.add_argument("--catalogue", type=str, default=os.path.join(static_dir,"AllSky.fits.gz"),
                         help=textwrap.dedent("""\
                                              Path to a FITS file containing a binary table with
                                              a source catalogue used to compute demerit values in its

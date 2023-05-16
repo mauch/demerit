@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 #
 # Derive the 'demerit' score at a position or a list of positions.
-# 
+#
 # The demerit score is computed at each input position by summing in
 # quadrature the individual demerit contributions of each source in an input
 # catalogue within a given radius. Suitable input catalogues
@@ -17,7 +17,7 @@
 #
 # Details of the demerit calculation can be found in Section 3 of Mauch et al.
 # (2020).
-# 
+#
 # Tom Mauch
 # May 2023
 import argparse
@@ -30,8 +30,7 @@ import numpy as np
 from astropy import coordinates as c
 from astropy import units as u
 
-import demerit
-
+from demerit import demeritlib
 
 
 def create_parser():
@@ -42,7 +41,7 @@ def create_parser():
     parser.add_argument("position", type=str, nargs="+",
                         help=textwrap.dedent("""
                                              Either one or two arguments.
-                                             
+
                                              One argument:
                                              A file containing a list of positions (two columns,
                                              one position per row).
@@ -61,7 +60,7 @@ def create_parser():
     parser.add_argument("-n", "--num-sources", type=int, default=3,
                         help="Number of top-scoring demerit sources to print at each position.\n"
                              "(default: %(default)s)")
-    parser = demerit.common_options(parser)
+    parser = demeritlib.common_options(parser)
     return parser
 
 
@@ -122,9 +121,9 @@ def main():
 
     input_coords = c.SkyCoord(_ra_to_deg(ras), _dec_to_deg(decs))
     
-    frequency, beamfwhm = demerit.BAND_FREQ[args.band]
+    frequency, beamfwhm = demeritlib.BAND_FREQ[args.band]
 
-    catalogue, peak_flux = demerit.load_catalogue(args.catalogue, frequency)
+    catalogue, peak_flux = demeritlib.load_catalogue(args.catalogue, frequency)
     limit = beamfwhm * args.search_radius
 
     catfile = os.path.basename(args.catalogue)
@@ -138,10 +137,10 @@ def main():
         seps = catalogue.separation(source)
         keep = np.where(seps < limit)[0]
         seps = seps[keep]
-        allatten = demerit.gaussian(seps, FWHM=beamfwhm)
+        allatten = demeritlib.gaussian(seps, FWHM=beamfwhm)
         allflux = peak_flux[keep]
         allattenflux = allflux * allatten
-        ds_squared = demerit.demerit_score_squared(beamfwhm, allattenflux, seps, args.pointing_rms, args.gain_rms)
+        ds_squared = demeritlib.demerit_score_squared(beamfwhm, allattenflux, seps, args.pointing_rms, args.gain_rms)
         sort_args = np.argsort(ds_squared)[:-args.num_sources - 1:-1]
         this_d = np.sqrt(np.sum(ds_squared)) << u.mJy / u.beam
         print(f"{source.to_string('hmsdms', precision=0)} {this_d.value : 8.1f} {len(keep) : 27d}")

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 #
 # Generate a 'demerit' map in FITS format.
-# 
+#
 # The demerit score is computed at each pixel in an output map by summing in
 # quadrature the individual demerit contributions of each source in the input
 # catalogue within a given radius of the input pixel. Suitable input catalogues
@@ -17,7 +17,7 @@
 #
 # Details of the demerit calculation can be found in Section 3 of Mauch et al.
 # (2020).
-# 
+#
 # Tom Mauch
 # May 2023
 
@@ -30,19 +30,19 @@ from astropy.io import fits
 from astropy.wcs import WCS
 import numpy as np
 
-import demerit
+from demerit import demeritlib
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger('demerit')
 
 def create_parser():
-    parser = argparse.ArgumentParser(description="Calculate demerit score at a position or list of positions",
+    parser = argparse.ArgumentParser(description="Make an all-sky FITS demerit map.",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("-o", "--fits-output", type=str,
                         help="Name of output FITS file. (default: './demerit_<band>.fits)")
     parser.add_argument("--pixel-scale", type=float, default=1.,
                         help="Pixel scale of the output FITS map in arcminutes. (default: 1 arcmin)")
-    parser = demerit.common_options(parser)
+    parser = demeritlib.common_options(parser)
     return parser
 
 
@@ -85,7 +85,7 @@ def get_demerit_fits(fits_output, catalogue, flux, beamfwhm, radius, pointing_rm
         thisdec = w.array_index_to_world(i, out_array.shape[1]//2).dec.deg
         if np.isfinite(thisdec):
             log.info('Computing demerit for Declination: %5.1f', thisdec)
-        out_array[i] = demerit.calculate_demerit_array(coords, catalogue, flux, beamfwhm,
+        out_array[i] = demeritlib.calculate_demerit_array(coords, catalogue, flux, beamfwhm,
                                                        radius, pointing_rms, gain_rms)
     fits_output.data[:] = out_array
     return fits_output
@@ -97,9 +97,9 @@ def main():
     if args.fits_output is None:
         args.fits_output = f'demerit_{args.band}.fits'
     fits_output = make_fits_header(args.pixel_scale / 60.)
-    freq, beamfwhm = demerit.BAND_FREQ[args.band]
+    freq, beamfwhm = demeritlib.BAND_FREQ[args.band]
     log.info('Reading catalogue from: %s', os.path.basename(args.catalogue))
-    catalogue, flux = demerit.load_catalogue(args.catalogue, freq)
+    catalogue, flux = demeritlib.load_catalogue(args.catalogue, freq)
     fits_output = get_demerit_fits(fits_output, catalogue, flux,
                                    beamfwhm, args.search_radius,
     	                           args.pointing_rms,
