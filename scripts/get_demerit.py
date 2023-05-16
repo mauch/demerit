@@ -30,7 +30,7 @@ import numpy as np
 from astropy import coordinates as c
 from astropy import units as u
 
-from demerit import demeritlib
+from demerit import demeritlib, static_dir
 
 
 def create_parser():
@@ -126,6 +126,9 @@ def main():
     catalogue, peak_flux = demeritlib.load_catalogue(args.catalogue, frequency)
     limit = beamfwhm * args.search_radius
 
+    # Cumulative demerit to interpolate
+    cum = np.load(os.path.join(static_dir, f'cum_demerit_{args.band}.npy'))
+
     catfile = os.path.basename(args.catalogue)
     print(f"Demerit score results at {args.band}-band:")
 
@@ -143,8 +146,9 @@ def main():
         ds_squared = demeritlib.demerit_score_squared(beamfwhm, allattenflux, seps, args.pointing_rms, args.gain_rms)
         sort_args = np.argsort(ds_squared)[:-args.num_sources - 1:-1]
         this_d = np.sqrt(np.sum(ds_squared)) << u.mJy / u.beam
+        this_sky_frac = np.interp(this_d.value, cum[0], cum[1])
         print(f"{source.to_string('hmsdms', precision=0)} {this_d.value : 8.1f} {len(keep) : 27d}")
-
+        print(f"\n{this_sky_frac : .1f}% of sky has a lower demerit score.")
         print("\n"
               f"    The {len(sort_args)} sources of greatest demerit:\n"
               f"    {'-' * 70}\n"
