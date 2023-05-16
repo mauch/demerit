@@ -105,6 +105,7 @@ def main():
     	                           args.pointing_rms,
     	                           args.gain_rms)
     log.info('Writing output to %s', args.fits_output)
+    fits_output.header['BANDCODE'] = args.band
     fits_output.writeto(args.fits_output, overwrite=True)
 
 
