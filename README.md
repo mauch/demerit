@@ -1,2 +1,2 @@
 # demerit
-MeerKAT demerit map creation and utilities
+MeerKAT demerit map utilities
