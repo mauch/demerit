@@ -12,7 +12,7 @@
 # SUMSS and MGPS-II catalogues which together cover the entire sky for sources
 # with peak amplitude greater than 10 mJy/beam (extrapolated from the reference
 # frequency of each respective survey to 1284 MHz using a spectral index of -0.7).
-# This is read by default by the script and again extrapolated to the desired 
+# This is read by default by the script and again extrapolated to the desired
 # frequency of the demerit map using the given spectral index (default -0.7).
 #
 # Details of the demerit calculation can be found in Section 3 of Mauch et al.
@@ -25,7 +25,6 @@ import argparse
 import logging
 import os
 
-from astropy import units as u
 from astropy.io import fits
 from astropy.wcs import WCS
 import numpy as np
@@ -34,6 +33,7 @@ from demerit import demeritlib
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger('demerit')
+
 
 def create_parser():
     parser = argparse.ArgumentParser(description="Make an all-sky FITS demerit map.",
@@ -53,9 +53,9 @@ def make_fits_header(pix_scale, projection='MOL'):
     ----------
     pix_scale : float
         The desired pixel scale in degrees. Only square pixels supported.
-	projection : string
-		The projection to use for the FITS image. Anything accepted by wcslib
-		works here, but really you will want an equal area all-sky projection.
+    projection : string
+        The projection to use for the FITS image. Anything accepted by wcslib
+        works here, but really you will want an equal area all-sky projection.
 
     Returns
     -------
@@ -86,7 +86,7 @@ def get_demerit_fits(fits_output, catalogue, flux, beamfwhm, radius, pointing_rm
         if np.isfinite(thisdec):
             log.info('Computing demerit for Declination: %5.1f', thisdec)
         out_array[i] = demeritlib.calculate_demerit_array(coords, catalogue, flux, beamfwhm,
-                                                       radius, pointing_rms, gain_rms)
+                                                          radius, pointing_rms, gain_rms)
     fits_output.data[:] = out_array
     return fits_output
 
@@ -102,12 +102,12 @@ def main():
     catalogue, flux = demeritlib.load_catalogue(args.catalogue, freq)
     fits_output = get_demerit_fits(fits_output, catalogue, flux,
                                    beamfwhm, args.search_radius,
-    	                           args.pointing_rms,
-    	                           args.gain_rms)
+                                   args.pointing_rms,
+                                   args.gain_rms)
     log.info('Writing output to %s', args.fits_output)
     fits_output.header['BANDCODE'] = args.band
     fits_output.writeto(args.fits_output, overwrite=True)
 
 
 if __name__ == '__main__':
-	main()
+    main()

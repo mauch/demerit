@@ -12,7 +12,7 @@
 # SUMSS and MGPS-II catalogues which together cover the entire sky for sources
 # with peak amplitude greater than 10 mJy/beam (extrapolated from the reference
 # frequency of each respective survey to 1284 MHz using a spectral index of -0.7).
-# This is read by default by the script and again extrapolated to the desired 
+# This is read by default by the script and again extrapolated to the desired
 # frequency of the demerit map using the given spectral index (default -0.7).
 #
 # Details of the demerit calculation can be found in Section 3 of Mauch et al.
@@ -35,7 +35,7 @@ from demerit import demeritlib, static_dir
 
 def create_parser():
     parser = argparse.ArgumentParser(description="Calculate demerit score at a position or list of positions",
-                                     usage="Either: get_demerit.py [-h] [--catalog CATALOG] filename "
+                                     usage="Either: get_demerit.py [-h] [--catalog CATALOG] filename\n"
                                            "Or: get_demerit.py [-h] [--catalog CATALOG] RA DEC",
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("position", type=str, nargs="+",
@@ -50,12 +50,12 @@ def create_parser():
                                              A single position (Right Ascension, Declination).
 
                                              The demerit score will be computed at each position.
-                                             Positions can be given either as two floats in 
+                                             Positions can be given either as two floats in
                                              decimal degrees, or two floats with units appended
                                              (eg. 10h 20d), or in sexagesimal RA, Dec (hms dms).
                                              Sexagesimal subdivisions can be separated by ':', by
                                              spaces, or by units (eg. XXhXXmXX.Xs XXdXXmXX.Xs).
-                                             Comment lines starting with '#' are ignored.' 
+                                             Comment lines starting with '#' are ignored.'
                                              """))
     parser.add_argument("-n", "--num-sources", type=int, default=3,
                         help="Number of top-scoring demerit sources to print at each position.\n"
@@ -120,7 +120,7 @@ def main():
         ras, decs = [args.position[0]], [args.position[1]]
 
     input_coords = c.SkyCoord(_ra_to_deg(ras), _dec_to_deg(decs))
-    
+
     frequency, beamfwhm = demeritlib.BAND_FREQ[args.band]
 
     catalogue, peak_flux = demeritlib.load_catalogue(args.catalogue, frequency)
@@ -134,7 +134,7 @@ def main():
 
     for i, source in enumerate(input_coords):
         print(f"{'=' * 80}")
-        print(f"{'Input Position' : ^20} {f'Demerit Score' : ^13} {f'Num. sources from {catfile}' : ^45}") 
+        print(f"{'Input Position' : ^20} {f'Demerit Score' : ^13} {f'Num. sources from {catfile}' : ^45}")
         print(f"{' ' *20} {'mJy / beam' : ^13} {f'within {limit : .1f} ({args.search_radius} x {(beamfwhm << u.arcmin) : <4.1f} FWHM)' : ^45}")
         print(f"{'=' * 80}")
         seps = catalogue.separation(source)
@@ -155,14 +155,14 @@ def main():
               f"    {'Position' : ^20} {'Separation' : ^14} {'Amplitude' : ^14} {'Demerit' : ^14}\n"
               f"    {' ' * 20} {'arcmin' : ^14} {'mJy / beam' : ^14} {'mJy / beam' : ^14}\n"
               f"    {'-' * 70}")
-        
+
         for arg in sort_args:
             this_d = np.sqrt(ds_squared[arg]) << u.mJy / u.beam
             max_flux = allflux[arg] << u.mJy / u.beam
             max_pos = catalogue[keep][arg].to_string('hmsdms', precision=0)
             max_sep = seps[arg]
             print(f"    {max_pos} {max_sep.arcmin : 10.1f} {max_flux.value : 14.1f} {this_d.value : 14.2f}")
-        
+
         print(f"{'=' * 80}")
 
 

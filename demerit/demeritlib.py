@@ -3,7 +3,6 @@ import os
 import textwrap
 
 from astropy.io import fits
-from astropy.wcs import WCS
 from astropy import units as u
 from astropy import coordinates as c
 import numpy as np
@@ -19,13 +18,13 @@ RMS_GAIN = 0.01
 # Band to frequency and beam FWHM conversion
 BAND_FREQ = {'UHF': [816. * u.MHz, 107./60. * u.deg],
              'L': [1284. * u.MHz, 68./60. * u.deg],
-             'S': [2625. * u.MHz, 33.3/60. *u.deg]}
+             'S': [2625. * u.MHz, 33.3/60. * u.deg]}
 
 
 def common_options(parser):
     """Add arguments that are common to all of the scripts"""
 
-    parser.add_argument("--catalogue", type=str, default=os.path.join(static_dir,"AllSky.fits.gz"),
+    parser.add_argument("--catalogue", type=str, default=os.path.join(static_dir, "AllSky.fits.gz"),
                         help=textwrap.dedent("""\
                                              Path to a FITS file containing a binary table with
                                              a source catalogue used to compute demerit values in its
@@ -46,7 +45,7 @@ def common_options(parser):
     parser.add_argument("-r", "--search-radius", type=int, default=5,
                         help="Width around each position in multiples of the primary beam FWHM \n"
                              "to search for sources in the provided catalogue. (default: %(default)s)")
-    parser.add_argument("--pointing-rms", type=lambda x:float(x) << u.arcsec, default=RMS_POINTING,
+    parser.add_argument("--pointing-rms", type=lambda x: float(x) << u.arcsec, default=RMS_POINTING,
                         help="RMS antenna pointing in arcminutes. (default: %(default)s)")
     parser.add_argument("--gain-rms", type=float, default=RMS_GAIN,
                         help="RMS antenna gain. (default: %(default)s)")

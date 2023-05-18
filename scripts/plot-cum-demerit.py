@@ -3,7 +3,7 @@
 # Derive a plot of the cumulative demerit distribution given a
 # FITS demerit map.
 #
-# The FITS demerit map should have been created using the 
+# The FITS demerit map should have been created using the
 # make_demerit_map.py script in this package. The script
 # will produce png files containing the cumulative demerit
 # distribution as well as a png file of the demerit map
@@ -14,7 +14,7 @@
 # contained in the 'static' directory of this package, and
 # read by the get_demerit.py script.
 #
-# Tom Mauch 
+# Tom Mauch
 # May 2023
 #
 import argparse
@@ -26,7 +26,6 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from matplotlib.axes import Axes
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from katsdpimageutils import zscale
 
 
 def create_parser():
@@ -52,7 +51,6 @@ def plot_cumulative_demerit(hdu):
     band = hdu.header['BANDCODE']
     data = hdu.data[~np.isnan(hdu.data)] * 1000.
     datamin = np.amin(data)
-    ndata = len(data)
 
     bins, cumhist = get_cum(data)
     # Normalise cumhist - its maximum bin should be 100% of sky area in the image
@@ -61,7 +59,7 @@ def plot_cumulative_demerit(hdu):
     # Point where cumhist is 95%
     plotmax = np.interp(95., cumhist, bins[1:])
 
-    plt.figure(figsize=(5,2.5), tight_layout=True, dpi=300)
+    plt.figure(figsize=(5, 2.5), tight_layout=True, dpi=300)
     plt.semilogy(bins[1:], cumhist)
     plt.xlim((datamin, plotmax))
     plt.ylim((0.1, 200))
@@ -73,7 +71,7 @@ def plot_cumulative_demerit(hdu):
     plt.savefig(f'cum_demerit_{band}.png')
     plt.clf()
     plt.close('all')
-    
+
     # Export the cumulative histogram
     output = np.stack((bins[1:], cumhist))
     np.save(f'cum_demerit_{band}', output)
@@ -85,19 +83,17 @@ def plot_image(hdu):
     wcs = WCS(hdu)
     band = hdu.header['BANDCODE']
     data = hdu.data * 1000.
-    bins , cumhist = get_cum(data)
+    bins, cumhist = get_cum(data)
     cumhist = cumhist / cumhist[-1] * 100.0
     vmax = np.interp(95., cumhist, bins[1:])
     vmin = np.interp(5., cumhist, bins[1:])
     image_height, image_width = data.shape
     finite_data = np.where(np.isfinite(data))
-    bbox = (0, image_width - 1, 0, image_height - 1)
     if finite_data[0].size > 0:
         ymin = np.min(finite_data[0])
         ymax = np.max(finite_data[0])
         xmin = np.min(finite_data[1])
         xmax = np.max(finite_data[1])
-        bbox = (xmin, xmax, ymin, ymax)
     aspect = image_width / image_height
     height = width / aspect * 1.08
     fig = plt.figure(figsize=(width/dpi, height/dpi), dpi=dpi)
@@ -124,6 +120,7 @@ def main():
 
     plot_cumulative_demerit(ffhdu[0])
     plot_image(ffhdu[0])
+
 
 if __name__ == '__main__':
     main()
