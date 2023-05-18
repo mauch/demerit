@@ -35,6 +35,7 @@ def create_parser():
                                                       "created using the make_demerit_map.py script.")
     return parser
 
+
 def get_cum(data, bins=5000):
     d = data[~np.isnan(data)]
     datamin = np.amin(d)
@@ -44,6 +45,7 @@ def get_cum(data, bins=5000):
     hist, bins = np.histogram(d, bins=bins)
     cumhist = np.cumsum(hist)
     return bins, cumhist
+
 
 def plot_cumulative_demerit(hdu):
 
