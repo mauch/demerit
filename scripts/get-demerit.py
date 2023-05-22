@@ -66,7 +66,7 @@ def create_parser():
 
 def _ra_to_deg(ras):
     """Convert RA-like coordinates to decimal degrees array"""
-    ra_deg = np.empty(len(ras), dtype=np.float)
+    ra_deg = np.empty(len(ras), dtype=np.float32)
     for i, ra in enumerate(ras):
         unit = None
         # String is just degrees without units
@@ -86,7 +86,7 @@ def _ra_to_deg(ras):
 
 def _dec_to_deg(decs):
     """Convert Dec-like coordinates to decimal degrees array"""
-    dec_deg = np.empty(len(decs), dtype=np.float)
+    dec_deg = np.empty(len(decs), dtype=np.float32)
     for i, dec in enumerate(decs):
         unit = None
         # String is just degrees without units
